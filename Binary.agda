@@ -1,62 +1,90 @@
 module Binary where
-
--- data Digit : Set where
---     one : Digit
---     zero : Digit
-
--- data Bin : Set where
---     base : Bin
---     suc : Digit -> Bin -> Bin
-
--- _+_ : Bin -> Bin -> Bin
--- base + b = b
--- suc x a + base = suc x a
--- suc one a + suc one b = suc one (suc zero (a + b))
--- suc one a + suc zero b = suc one (a + b)
--- suc zero a + suc one b = suc one (a + b)
--- suc zero a + suc zero b = a + b
--- -- hmmm
-
--- -- Denotation for binary arithmetic?
--- -- Bin -> Bin -> Bin
-
--- -- define a meaning function
-
--- open import Data.Nat using (ℕ)
-
--- Bin : Set
--- Bin = ℕ -> Digit 
-
--- _D+_ : Bin -> Bin -> Bin
--- (f D+ g) ℕ.zero = {! f ℕ.zero + g ℕ.zero   !}
--- (f D+ g) (ℕ.suc x) = {! f (ℕ.suc x) + g (ℕ.suc x) + (f D+ g) x  !}
---     where 
---     _dig+_ : Digit -> Digit -> 
-
-
-open import Data.Nat using (ℕ; _≟_; suc; zero)
-open import Data.Bool using (Bool; true; false; T; _∧_; _∨_; _xor_; not)
-open import Data.List using (List; _∷_; [])
-open import Data.List.Base using (any)
-open import Relation.Nullary.Decidable using (⌊_⌋)
-
+open import Data.Nat using (ℕ; _+_; _*_; suc; zero)
 
 -- representation
-Bin : Set
-Bin = List ℕ 
+data Bin : Set where
+    ⟨⟩ : Bin
+    _O : Bin -> Bin
+    _I : Bin -> Bin
 
--- meaning (how do we get here?)
-⟦_⟧ : Bin -> (ℕ -> Bool)
-(⟦ xs ⟧) n = any (λ x → ⌊ x ≟ n ⌋) xs
+inc : Bin -> Bin
+inc ⟨⟩ = ⟨⟩ I
+inc (bin O) = bin I
+inc (bin I) = (inc bin) O
 
-_+_ : (ℕ -> Bool) -> (ℕ -> Bool) -> (ℕ -> Bool)
-(a + b) zero = (a zero) xor (b zero)
-(a + b) (suc n) = (a (suc n)) xor (b (suc n)) xor (carry+ a b n)
-    where 
-    carry+ : (ℕ -> Bool) -> (ℕ -> Bool) -> (ℕ -> Bool)
-    carry+ a b zero = (a zero) ∧ (b zero)
-    carry+ a b (suc n) with (a (suc n)) | (b (suc n)) | (carry+ a b n) 
-    ...| A | B | C = (A ∨ B) ∧ (B ∨ C) ∧ (A ∨ C)
 
-const0Bin : ℕ -> Bool
-const0Bin _ = false
+_+ᵇ_ : Bin -> Bin -> Bin
+⟨⟩ +ᵇ ⟨⟩ = ⟨⟩
+⟨⟩ +ᵇ (b O) = (b O)
+⟨⟩ +ᵇ (b I) = (b I)
+(a O) +ᵇ ⟨⟩ = (a O)
+(a O) +ᵇ (b O) = (a +ᵇ b) O
+(a O) +ᵇ (b I) = (a +ᵇ b) I
+(a I) +ᵇ ⟨⟩ = (a I)
+(a I) +ᵇ (b O) = (a +ᵇ b) I
+(a I) +ᵇ (b I) = (inc (a +ᵇ b)) O
+-- ⟨⟩ +ᵇ b = b
+-- a +ᵇ ⟨⟩ = a 
+-- (a O) +ᵇ (b O) = (a +ᵇ b) O
+-- (a O) +ᵇ (b I) = (a +ᵇ b) I
+-- (a I) +ᵇ (b O) = (a +ᵇ b) I
+-- (a I) +ᵇ (b I) = (inc (a +ᵇ b)) O
+
+0ᵇ : Bin
+0ᵇ = ⟨⟩
+
+⟦_⟧ : Bin -> ℕ 
+⟦ ⟨⟩ ⟧ = zero
+⟦ x O ⟧ = ⟦ x ⟧ * 2
+⟦ x I ⟧ = ⟦ x ⟧ * 2 + 1
+
+
+import Relation.Binary.PropositionalEquality as Eq
+open Eq using (_≡_; refl; cong; sym)
+open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
+open import Data.Nat.Properties using (+-identityʳ; *-distribʳ-+; +-assoc; +-comm)
+0ᴴ : ⟦ 0ᵇ ⟧ ≡ 0
+0ᴴ = refl
+
+inc-≡ : ∀ (bin : Bin) -> ⟦ inc bin ⟧ ≡ ⟦ bin ⟧ + 1
+inc-≡ ⟨⟩ = refl
+inc-≡ (bin O) = refl
+inc-≡ (bin I) 
+    rewrite inc-≡ bin 
+    | *-distribʳ-+ 2 (⟦ bin ⟧) 1
+    | +-assoc (⟦ bin ⟧ * 2) 1 1 = refl
+
+
+_+ᴴ_ : ∀ x y → ⟦ x +ᵇ y ⟧ ≡ ⟦ x ⟧ + ⟦ y ⟧
+⟨⟩ +ᴴ ⟨⟩ = refl
+⟨⟩ +ᴴ (b O) = refl
+⟨⟩ +ᴴ (b I) = refl
+(a O) +ᴴ ⟨⟩ rewrite +-identityʳ (⟦ a ⟧ * 2) = refl
+(a O) +ᴴ (b O) rewrite a +ᴴ b | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)  = refl
+(a O) +ᴴ (b I) rewrite a +ᴴ b 
+    | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)
+    | +-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 1  = refl
+(a I) +ᴴ ⟨⟩ rewrite +-identityʳ (⟦ a ⟧ * 2 + 1) = refl
+(a I) +ᴴ (b O) 
+    rewrite a +ᴴ b 
+    | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)  -- ⟦ a ⟧ * 2 + ⟦ b ⟧ * 2 + 1 ≡ ⟦ a ⟧ * 2 + 1 + ⟦ b ⟧ * 2
+    | +-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 1 -- ⟦ a ⟧ * 2 + (⟦ b ⟧ * 2 + 1) ≡ ⟦ a ⟧ * 2 + 1 + ⟦ b ⟧ * 2
+    | +-comm (⟦ b ⟧ * 2 ) 1 -- ⟦ a ⟧ * 2 + suc (⟦ b ⟧ * 2) ≡ ⟦ a ⟧ * 2 + 1 + ⟦ b ⟧ * 2
+    | +-assoc (⟦ a ⟧ * 2) 1 (⟦ b ⟧ * 2)
+    = refl
+(a I) +ᴴ (b I) 
+    rewrite inc-≡ (a +ᵇ b) 
+    | a +ᴴ b -- (⟦ a ⟧ + ⟦ b ⟧ + 1) * 2 ≡ ⟦ a ⟧ * 2 + 1 + (⟦ b ⟧ * 2 + 1)
+    | +-assoc (⟦ a ⟧ * 2) 1 (⟦ b ⟧ * 2 + 1)
+    | +-comm 1 (⟦ b ⟧ * 2 + 1)
+    | +-assoc (⟦ b ⟧ * 2) 1 1
+    | sym (+-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 2)
+    | *-distribʳ-+ 2 (⟦ a ⟧ + ⟦ b ⟧) (1)
+    | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)
+    = refl
+
+    -- begin 
+    --     ⟦ a +ᵇ b ⟧
+    -- ≡⟨ {!   !} ⟩ 
+    --     ⟦ a ⟧ + ⟦ b ⟧
+    -- ∎ 
