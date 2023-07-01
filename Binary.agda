@@ -14,13 +14,11 @@ inc (bin I) = (inc bin) O
 
 
 _+ᵇ_ : Bin -> Bin -> Bin
-⟨⟩ +ᵇ ⟨⟩ = ⟨⟩
-⟨⟩ +ᵇ (b O) = (b O)
-⟨⟩ +ᵇ (b I) = (b I)
+⟨⟩ +ᵇ b = b
 (a O) +ᵇ ⟨⟩ = (a O)
+(a I) +ᵇ ⟨⟩ = (a I)
 (a O) +ᵇ (b O) = (a +ᵇ b) O
 (a O) +ᵇ (b I) = (a +ᵇ b) I
-(a I) +ᵇ ⟨⟩ = (a I)
 (a I) +ᵇ (b O) = (a +ᵇ b) I
 (a I) +ᵇ (b I) = (inc (a +ᵇ b)) O
 -- ⟨⟩ +ᵇ b = b
@@ -56,15 +54,13 @@ inc-≡ (bin I)
 
 
 _+ᴴ_ : ∀ x y → ⟦ x +ᵇ y ⟧ ≡ ⟦ x ⟧ + ⟦ y ⟧
-⟨⟩ +ᴴ ⟨⟩ = refl
-⟨⟩ +ᴴ (b O) = refl
-⟨⟩ +ᴴ (b I) = refl
+⟨⟩ +ᴴ b = refl
 (a O) +ᴴ ⟨⟩ rewrite +-identityʳ (⟦ a ⟧ * 2) = refl
+(a I) +ᴴ ⟨⟩ rewrite +-identityʳ (⟦ a ⟧ * 2 + 1) = refl
 (a O) +ᴴ (b O) rewrite a +ᴴ b | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)  = refl
 (a O) +ᴴ (b I) rewrite a +ᴴ b 
     | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)
     | +-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 1  = refl
-(a I) +ᴴ ⟨⟩ rewrite +-identityʳ (⟦ a ⟧ * 2 + 1) = refl
 (a I) +ᴴ (b O) 
     rewrite a +ᴴ b 
     | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)  -- ⟦ a ⟧ * 2 + ⟦ b ⟧ * 2 + 1 ≡ ⟦ a ⟧ * 2 + 1 + ⟦ b ⟧ * 2
