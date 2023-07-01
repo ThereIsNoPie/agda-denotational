@@ -1,25 +1,35 @@
 module Binary where
 open import Data.Nat using (ℕ; _+_; _*_; suc; zero)
+open import Data.List using (List; _∷_; [])
+open import Data.Product using (_×_; _,_)
+open import Data.Bool using (Bool; true; false; T; not)
 
 -- representation
 data Digit : Set where
-    O : Digit
-    I : Digit
+    one : Digit
+    two : Digit
 
-data Bin : Set where
-    zero : Bin
-    append-to-I : Digit -> Bin 
+Bin : Set 
+Bin = List Digit
+
+_+carry_ : Digit -> Digit -> Bool × Digit 
+one +carry one = false , two
+one +carry two = true , one
+two +carry one = true , one
+two +carry two = true , two
 
 _+ᵇ_ : Bin -> Bin -> Bin
-zero +ᵇ b = b
-append-to-I x +ᵇ zero = append-to-I x
-append-to-I x +ᵇ append-to-I x₁ = {!   !}
+[] +ᵇ b = b
+(x ∷ a) +ᵇ [] = (x ∷ a)
+(dig ∷ a) +ᵇ (dig2 ∷ b) = {!   !}
 
 0ᵇ : Bin
-0ᵇ = zero
+0ᵇ = []
 
 ⟦_⟧ : Bin -> ℕ 
-⟦ bin ⟧ = {!   !}
+⟦ [] ⟧ = zero
+⟦ one ∷ bin ⟧ = {!   !}
+⟦ two ∷ bin ⟧ = {!   !}
 
 
 import Relation.Binary.PropositionalEquality as Eq
