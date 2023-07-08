@@ -47,40 +47,112 @@ open import Data.Nat.Properties using (+-identityʳ; *-distribʳ-+; +-assoc; +-c
 inc-≡ : ∀ (bin : Bin) -> ⟦ inc bin ⟧ ≡ ⟦ bin ⟧ + 1
 inc-≡ ⟨⟩ = refl
 inc-≡ (bin O) = refl
-inc-≡ (bin I) 
-    rewrite inc-≡ bin 
-    | *-distribʳ-+ 2 (⟦ bin ⟧) 1
-    | +-assoc (⟦ bin ⟧ * 2) 1 1 = refl
-
+inc-≡ (bin I) =
+    begin
+        ⟦ inc (bin I) ⟧
+    ≡⟨⟩
+        ⟦ (inc bin) O ⟧
+    ≡⟨⟩
+        ⟦ inc bin ⟧ * 2
+    ≡⟨ cong (λ x -> x * 2) (inc-≡ bin) ⟩
+        (⟦ bin ⟧ + 1) * 2
+    ≡⟨ *-distribʳ-+ 2 (⟦ bin ⟧) 1 ⟩
+        ⟦ bin ⟧ * 2 + 1 * 2
+    ≡⟨ sym (+-assoc (⟦ bin ⟧ * 2) 1 1) ⟩
+        ⟦ bin ⟧ * 2 + 1 + 1
+    ≡⟨⟩ 
+        ⟦ bin I ⟧ + 1
+    ∎
 
 _+ᴴ_ : ∀ x y → ⟦ x +ᵇ y ⟧ ≡ ⟦ x ⟧ + ⟦ y ⟧
 ⟨⟩ +ᴴ b = refl
-(a O) +ᴴ ⟨⟩ rewrite +-identityʳ (⟦ a ⟧ * 2) = refl
-(a I) +ᴴ ⟨⟩ rewrite +-identityʳ (⟦ a ⟧ * 2 + 1) = refl
-(a O) +ᴴ (b O) rewrite a +ᴴ b | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)  = refl
-(a O) +ᴴ (b I) rewrite a +ᴴ b 
-    | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)
-    | +-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 1  = refl
-(a I) +ᴴ (b O) 
-    rewrite a +ᴴ b 
-    | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)  -- ⟦ a ⟧ * 2 + ⟦ b ⟧ * 2 + 1 ≡ ⟦ a ⟧ * 2 + 1 + ⟦ b ⟧ * 2
-    | +-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 1 -- ⟦ a ⟧ * 2 + (⟦ b ⟧ * 2 + 1) ≡ ⟦ a ⟧ * 2 + 1 + ⟦ b ⟧ * 2
-    | +-comm (⟦ b ⟧ * 2 ) 1 -- ⟦ a ⟧ * 2 + suc (⟦ b ⟧ * 2) ≡ ⟦ a ⟧ * 2 + 1 + ⟦ b ⟧ * 2
-    | +-assoc (⟦ a ⟧ * 2) 1 (⟦ b ⟧ * 2)
-    = refl
-(a I) +ᴴ (b I) 
-    rewrite inc-≡ (a +ᵇ b) 
-    | a +ᴴ b -- (⟦ a ⟧ + ⟦ b ⟧ + 1) * 2 ≡ ⟦ a ⟧ * 2 + 1 + (⟦ b ⟧ * 2 + 1)
-    | +-assoc (⟦ a ⟧ * 2) 1 (⟦ b ⟧ * 2 + 1)
-    | +-comm 1 (⟦ b ⟧ * 2 + 1)
-    | +-assoc (⟦ b ⟧ * 2) 1 1
-    | sym (+-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 2)
-    | *-distribʳ-+ 2 (⟦ a ⟧ + ⟦ b ⟧) (1)
-    | *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)
-    = refl
-
-    -- begin 
-    --     ⟦ a +ᵇ b ⟧
-    -- ≡⟨ {!   !} ⟩ 
-    --     ⟦ a ⟧ + ⟦ b ⟧
-    -- ∎ 
+(a O) +ᴴ ⟨⟩ =
+    begin 
+        ⟦ (a O) +ᵇ ⟨⟩ ⟧
+    ≡⟨⟩ 
+        ⟦ a ⟧ * 2
+    ≡⟨ sym (+-identityʳ (⟦ a ⟧ * 2)) ⟩ 
+        ⟦ a ⟧ * 2 + zero
+    ≡⟨⟩ 
+        ⟦ a O ⟧ + ⟦ ⟨⟩ ⟧
+    ∎ 
+(a I) +ᴴ ⟨⟩ = 
+    begin 
+        ⟦ (a I) +ᵇ ⟨⟩ ⟧
+    ≡⟨⟩ 
+        ⟦ a ⟧ * 2 + 1
+    ≡⟨ sym (+-identityʳ (⟦ a ⟧ * 2 + 1)) ⟩ 
+        ⟦ a ⟧ * 2 + 1 + zero
+    ≡⟨⟩ 
+        ⟦ a I ⟧ + ⟦ ⟨⟩ ⟧
+    ∎ 
+(a O) +ᴴ (b O) =
+    begin
+        ⟦ (a O) +ᵇ (b O) ⟧
+    ≡⟨⟩
+        ⟦ a +ᵇ b ⟧ * 2
+    ≡⟨ cong (_* 2) (a +ᴴ b) ⟩ 
+        (⟦ a ⟧ + ⟦ b ⟧) * 2
+    ≡⟨ *-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧) ⟩ 
+        ⟦ a ⟧ * 2 + ⟦ b ⟧ * 2
+    ≡⟨⟩ 
+        ⟦ a O ⟧ + ⟦ b O ⟧
+    ∎  
+(a O) +ᴴ (b I) = 
+    begin
+        ⟦ (a O) +ᵇ (b I) ⟧
+    ≡⟨⟩
+        ⟦ a +ᵇ b ⟧ * 2 + 1 
+    ≡⟨ cong (λ x -> x * 2 + 1) (a +ᴴ b) ⟩ 
+        (⟦ a ⟧ + ⟦ b ⟧) * 2 + 1
+    ≡⟨ cong (λ x → x + 1) (*-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)) ⟩ 
+        ⟦ a ⟧ * 2 + ⟦ b ⟧ * 2 + 1
+    ≡⟨ +-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 1 ⟩ 
+        ⟦ a ⟧ * 2 + (⟦ b ⟧ * 2 + 1)
+    ≡⟨⟩ 
+        ⟦ a O ⟧ + ⟦ b I ⟧
+    ∎  
+(a I) +ᴴ (b O) =
+    begin 
+        ⟦ (a I) +ᵇ (b O) ⟧
+    ≡⟨⟩ 
+        ⟦ a +ᵇ b ⟧ * 2 + 1
+    ≡⟨ cong (λ x -> x * 2 + 1) (a +ᴴ b) ⟩ 
+        (⟦ a ⟧ + ⟦ b ⟧) * 2 + 1
+    ≡⟨ cong (_+ 1) (*-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)) ⟩ 
+        ⟦ a ⟧ * 2 + ⟦ b ⟧ * 2 + 1
+    ≡⟨ +-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 1 ⟩ 
+        ⟦ a ⟧ * 2 + (⟦ b ⟧ * 2 + 1)
+    ≡⟨ cong ((⟦ a ⟧ * 2)  +_) (+-comm (⟦ b ⟧ * 2 ) 1) ⟩ 
+        ⟦ a ⟧ * 2 + suc (⟦ b ⟧ * 2)
+    ≡⟨ sym (+-assoc (⟦ a ⟧ * 2) 1 (⟦ b ⟧ * 2)) ⟩
+        ⟦ a ⟧ * 2 + 1 + ⟦ b ⟧ * 2
+    ≡⟨⟩ 
+        ⟦ a I ⟧ + ⟦ b O ⟧
+    ∎ 
+(a I) +ᴴ (b I) = 
+    begin 
+        ⟦ (a I) +ᵇ (b I) ⟧
+    ≡⟨⟩ 
+        ⟦ inc (a +ᵇ b) ⟧ * 2 
+    ≡⟨ cong (_* 2) (inc-≡ (a +ᵇ b)) ⟩ 
+        (⟦ (a +ᵇ b) ⟧ + 1) * 2
+    ≡⟨ cong (λ x → (x + 1) * 2) (a +ᴴ b) ⟩ 
+        (⟦ a ⟧ + ⟦ b ⟧ + 1) * 2
+    ≡⟨ *-distribʳ-+ 2 (⟦ a ⟧ + ⟦ b ⟧) (1) ⟩ 
+        (⟦ a ⟧ + ⟦ b ⟧) * 2 + 2
+    ≡⟨ cong (_+ 2) (*-distribʳ-+ 2 (⟦ a ⟧) (⟦ b ⟧)) ⟩         
+        ⟦ a ⟧ * 2 + ⟦ b ⟧ * 2 + 2
+    ≡⟨  +-assoc (⟦ a ⟧ * 2) (⟦ b ⟧ * 2) 2 ⟩         
+        ⟦ a ⟧ * 2 + (⟦ b ⟧ * 2 + 2)
+    ≡⟨⟩ 
+        ⟦ a ⟧ * 2 + (⟦ b ⟧ * 2 + (1 + 1)) 
+    ≡⟨ cong (λ x → ⟦ a ⟧ * 2 + x) (sym (+-assoc (⟦ b ⟧ * 2) 1 1)) ⟩ 
+        ⟦ a ⟧ * 2 + (⟦ b ⟧ * 2 + 1 + 1) 
+    ≡⟨ cong ((⟦ a ⟧ * 2) +_) (+-comm (⟦ b ⟧ * 2 + 1) 1) ⟩ 
+        ⟦ a ⟧ * 2 + (1 + ⟦ b ⟧ * 2 + 1)     
+    ≡⟨ sym (+-assoc (⟦ a ⟧ * 2) 1 (⟦ b ⟧ * 2 + 1)) ⟩ 
+       ⟦ a ⟧ * 2 + 1 + (⟦ b ⟧ * 2 + 1)
+    ≡⟨⟩ 
+        ⟦ a I ⟧ + ⟦ b I ⟧
+    ∎ 
