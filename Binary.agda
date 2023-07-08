@@ -56,7 +56,7 @@ inc-≡ (bin I) =
         ⟦ inc bin ⟧ * 2
     ≡⟨ cong (λ x -> x * 2) (inc-≡ bin) ⟩
         (⟦ bin ⟧ + 1) * 2
-    ≡⟨ *-distribʳ-+ 2 (⟦ bin ⟧) 1 ⟩
+    ≡⟨ *-distribʳ-+ 2 ⟦ bin ⟧ 1 ⟩
         ⟦ bin ⟧ * 2 + 1 * 2
     ≡⟨ sym (+-assoc (⟦ bin ⟧ * 2) 1 1) ⟩
         ⟦ bin ⟧ * 2 + 1 + 1
