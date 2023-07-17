@@ -3,33 +3,34 @@ open import Data.Nat using (ℕ; _+_; _*_; suc; zero)
 open import Data.List using (List; _∷_; [])
 open import Data.Product using (_×_; _,_)
 open import Data.Bool using (Bool; true; false; T; not)
+open import Data.Fin.Base 
 
 -- representation
-data Digit : Set where
-    one : Digit
-    two : Digit
+Digit : ℕ -> Set
+Digit = Fin
 
 Bin : Set 
-Bin = List Digit
+Bin = List (Digit 2)
 
-_+carry_ : Digit -> Digit -> Bool × Digit 
-one +carry one = false , two
-one +carry two = true , one
-two +carry one = true , one
-two +carry two = true , two
+_+carry_ : ∀ {n : ℕ} -> Digit n -> Digit n -> Digit n × Digit n 
+x +carry y with x Data.Fin.Base.+ y 
+... | a = {!   !}
+-- zero +carry y = false , y
+-- suc x +carry zero = false , (suc x)
+-- suc x +carry suc y with x +carry y 
+-- ... | false , snd = {!   !}
+-- ... | true , snd = {!   !}
 
 _+ᵇ_ : Bin -> Bin -> Bin
-[] +ᵇ b = b
-(x ∷ a) +ᵇ [] = (x ∷ a)
-(dig ∷ a) +ᵇ (dig2 ∷ b) = {!   !}
+a +ᵇ b = {!   !}
 
 0ᵇ : Bin
 0ᵇ = []
 
 ⟦_⟧ : Bin -> ℕ 
-⟦ [] ⟧ = zero
-⟦ one ∷ bin ⟧ = {!   !}
-⟦ two ∷ bin ⟧ = {!   !}
+⟦ [] ⟧ = 0
+⟦ x ∷ x₁ ⟧ = {!   !}
+
 
 
 import Relation.Binary.PropositionalEquality as Eq
@@ -39,5 +40,5 @@ open import Data.Nat.Properties using (+-identityʳ; *-distribʳ-+; +-assoc; +-c
 0ᴴ : ⟦ 0ᵇ ⟧ ≡ 0
 0ᴴ = {!   !}
 
-_+ᴴ_ : ∀ x y → ⟦ x +ᵇ y ⟧ ≡ ⟦ x ⟧ + ⟦ y ⟧
-a +ᴴ b = {!   !}
+-- _+ᴴ_ : ∀ (x y : Bin) → ⟦ x +ᵇ y ⟧ ≡ ⟦ x ⟧ + ⟦ y ⟧
+-- a +ᴴ b = {!   !}
