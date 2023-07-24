@@ -1,44 +1,50 @@
 module Binary where
 open import Data.Nat using (ℕ; _+_; _*_; suc; zero)
-open import Data.List using (List; _∷_; [])
-open import Data.Product using (_×_; _,_)
-open import Data.Bool using (Bool; true; false; T; not)
-open import Data.Fin.Base 
-
+open import Data.Nat.Binary as ℕᵇ using (ℕᵇ)
 -- representation
-Digit : ℕ -> Set
-Digit = Fin
+
 
 Bin : Set 
-Bin = List (Digit 2)
-
-_+carry_ : ∀ {n : ℕ} -> Digit n -> Digit n -> Digit n × Digit n 
-x +carry y with x Data.Fin.Base.+ y 
-... | a = {!   !}
--- zero +carry y = false , y
--- suc x +carry zero = false , (suc x)
--- suc x +carry suc y with x +carry y 
--- ... | false , snd = {!   !}
--- ... | true , snd = {!   !}
+Bin = ℕᵇ
 
 _+ᵇ_ : Bin -> Bin -> Bin
-a +ᵇ b = {!   !}
+_+ᵇ_  = ℕᵇ._+_
 
 0ᵇ : Bin
-0ᵇ = []
+0ᵇ = ℕᵇ.zero
 
 ⟦_⟧ : Bin -> ℕ 
-⟦ [] ⟧ = 0
-⟦ x ∷ x₁ ⟧ = {!   !}
+⟦_⟧ = ℕᵇ.toℕ 
 
 
 
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; cong; sym)
-open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
-open import Data.Nat.Properties using (+-identityʳ; *-distribʳ-+; +-assoc; +-comm)
+open Eq using (_≡_; refl)
 0ᴴ : ⟦ 0ᵇ ⟧ ≡ 0
-0ᴴ = {!   !}
+0ᴴ = refl
 
--- _+ᴴ_ : ∀ (x y : Bin) → ⟦ x +ᵇ y ⟧ ≡ ⟦ x ⟧ + ⟦ y ⟧
--- a +ᴴ b = {!   !}
+open import Data.Nat.Binary.Properties
+_+ᴴ_ : ∀ (x y : Bin) → ⟦ x +ᵇ y ⟧ ≡ ⟦ x ⟧ + ⟦ y ⟧
+x +ᴴ y = toℕ-homo-+ x y
+
+-- ℕᵇ.zero +ᴴ y = refl
+-- ℕᵇ.2[1+ x ] +ᴴ ℕᵇ.zero = {! refl   !}
+-- ℕᵇ.1+[2 x ] +ᴴ ℕᵇ.zero = {!   !}
+-- ℕᵇ.2[1+ x ] +ᴴ ℕᵇ.2[1+ y ] = 
+--     begin 
+--         ⟦ ℕᵇ.2[1+ x ] +ᵇ ℕᵇ.2[1+ y ] ⟧ 
+--     ≡⟨ {!   !} ⟩ 
+--         ⟦ ℕᵇ.2[1+ x ] ⟧ + ⟦ ℕᵇ.2[1+ y ] ⟧
+--     ∎
+-- ℕᵇ.2[1+ x ] +ᴴ ℕᵇ.1+[2 y ] = {!   !}
+-- ℕᵇ.1+[2 x ] +ᴴ ℕᵇ.2[1+ y ] = {!   !}
+-- ℕᵇ.1+[2 x ] +ᴴ ℕᵇ.1+[2 y ] = {!   !}
+
+-- import Data.Bin 
+-- O  = zero
+-- I = 1 + 2 * zero = 1+[2 O ] = I 
+-- IO  = 2 * (1 + zero) = 2[1+ O ] = IO 
+-- II = 1 + 2 * 1 = 1+[2 I ] = ... I I 
+-- IOO = 2 * (1 + 1) = 2[1+ I ] = IOO
+-- IOI = 1 + (2 * 2) = 1+[2 IO ] = IOI
+-- IIO = 2 * (1 * 2) = 2[1+ IO ] = ...
